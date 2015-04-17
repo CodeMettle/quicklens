@@ -9,14 +9,10 @@ object BuildSettings {
     version       := "1.4-SNAPSHOT",
     scalaVersion  := "2.11.6",
     // Sonatype OSS deployment
-    publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
-      if (v.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-    },
-    credentials   += Credentials(Path.userHome / ".ivy2" / ".credentials"),
+    publishTo := Some(Resolver.ssh("CodeMettle maven", "maven.codemettle.com",
+      s"archiva/data/repositories/${if (isSnapshot.value) "snapshots" else "internal"}/") as
+      ("archiva", Path.userHome / ".ssh" / "id_rsa")),
+    //credentials   += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
